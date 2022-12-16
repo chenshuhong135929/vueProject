@@ -98,4 +98,23 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     作用：让样式在局部生效，防止冲突
     写法：<style scoped>
 
+## webStorage
+   1，存储内容大小一般支持5MB左右（不同浏览器可能不一样）
+   2，浏览器端通过window.sessionStorage 和window.localStorage属性来实现本地存储机制
+   3，相关API
+        1，xxxxStorage.setItem('key','value')
+            该方法接受到一个键值作为参数，会把键值对添加到存储中，如果键名存在，则跟新其对应的值
+        2，xxxxStorage.getItem('key')
+            该方法接受一个键名作为参数，返回键名对应的值
+        3，xxxxStorage.removeItem('key')
+            该方法接受一个键名作为参数，并把该键名从存储中删除
+        4，xxxxxStorage.clear() 
+            该方法会清空存储中的所有数据
 
+
+    4，备注：
+        1，SessionStorage存储的内容会随着浏览器窗口关闭而消失
+        2，LocalStorage 存储的内容需要手动清除才会消失
+        3，xxxxStorage.getItem(xxx)如果xxx对应的value获取不到，那么getItem的返回值就是null
+        4,Json.parse(null)的结果依然是null
+    

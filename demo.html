@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>project</title>
+    <script  type="text/javascript" src="./static/js/vue.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.11.6/dayjs.min.js"></script>
+    <style >
+      
+     
+      .basic{
+          width: 800px;
+          height: 140px;
+          background-color: rebeccapurple;
+      }
+      .hongs{
+        background-color: red;
+      }
+      .lus{
+        background-color: darkgreen;
+      }
+      .huangs{
+        background-color: darkorange;
+      }
+      .at1{
+        background-color: darkblue;
+      }
+      .at2{
+       width: 40px;
+       height: 40px;
+      }
+      .at3{
+        width: 140px;
+       height: 140px;
+      }
+      [v-cloak ]{
+      display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      vue模板语法有2大类：
+        1，插值语法：
+              功能：用于解析标签体内容
+              写法：{{xxx}},xxx是js表达式，且可以直接读取到data中的所有属性
+        2，指令语法
+            功能：用户解析标签（包括：标签属性，标签体内容，绑定事件。。。）
+            举例：V-bind:href="xxx" 或者 简写为 :href="xxx", xxx 同样要写js表达式
+                 且可以直接读取到data中的所有属性
+          备注：Vue 中有很多的指令且形式都是:v-??? 此处我们是拿v-bind举例子。
+
+
+        Vue中在2种数据绑定的方式：
+          1，单向绑定（v-bind): 数据只能从data流向页面，
+          2，双向绑定（v-mode)：数据不仅能从data流向页面，还可以从页面流向data
+            备注：
+              1，双向绑定一般都应用在表单元素上（如：input,select等）
+              2，v-model:value 可以单写为v-model ，因为v-model默认收集的就是value值
+
+        MVVM模型
+        1M 模型（model):对应data中的数据
+        2V 视图（view）模板
+        3VM视图模型（view Model) vue实例对象
+
+
+        数据代理：
+          通过一个对象代理对另外一个对象中的属性的操作（读、写）
+
+
+        事件的基本使用：
+          1，使用v-on:xx 或 @xxx 绑定事件，其中的xxx是事件名
+          2，事件的回调需要配置在method对象中，最终会在vm上
+          3，method中配置的函数们不会用箭头函数，this的指向是vm或，组件实例对象
+          5，@click ="demo" 和 @click="demo($event)" 效果一致，但后者可以传参
+
+
+        vue中的事件修饰符
+          1，prevent :阻止默认事件（常用）
+          2，stop： 阻止冒泡事件（常用）
+          3，once： 事件只触发一次
+          4，capture: 使用事件的捕获模式
+          5，self: 只有event,target 是当前操作的元素时才触发事件
+          6，passive:事件的默认行为立即执行，无需等待事件回调操作完毕
+
+        vue中常用的按键别名
+          回车=>enter
+          删除=>delete 
+          退出=>esc
+          空格=>space
+          换行=>tab  (配合keydown操作)
+          上=>up
+          下=>down
+          左=>left
+          右=>right
+        
+
+        vue 未提及别名的按键，可以使用按键原始的key值去绑定，但注意要转为kebab-case（短横线命名）
+
+        系统修饰健（用法特殊）：ctr1,alt,shift,meta
+          配合keyup使用：按下修饰键的同时，再按下其他健，随后释放其他健，事件才会被触发
+          配合keydown使用：正常触发事件
+        
+        也可以使用keyCode去指定具体的按键（不推荐）
+        Vue.config.keyCodes.自定义键名=键码，可以去定制按键别名
+
+      计算属性：
+        定义：要用的属性不存在，要通过已有属性计算得来
+        原理：底层借助了Objcet.defineproperty 方法提供得getter和setter
+        get函数什么时候执行
+          初次读取时会执行一次
+          当依赖得数据发生改变时会被再次调用
+        优势：与methods实现相比，内部有缓存机制（复用），效率更高，调式方便
+        备注：
+          计算属性最终会出现在vm上，直接读取使用即可
+          如果计算属性要被修改，那必须写set函数去响应修改，且set中要引起计算时依赖数据
+
+      监视属性watch：
+        当被监视的属性改变时，回调函数自动调用，进行相关操作
+        监视的属性必须时存在的才能进行监视
+        监视属性的两种写法
+          new Vue时传入watch配置
+          通过vm.$watch监视
+
+      深度监视：
+        Vue中的watch默认时不检测对象内部值得改变（一层）
+        Vue配置得deep:true可以监测到内部值改变（多层）
+      备注：
+        Vue自身watch是可以根据数据具体结构，决定是否采用深度监视
+
+
+
+      computed 和watch 之间的区别：
+        computed能完成的功能，watch都可以完成
+        watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
+      两个重点的小原则：
+        所有vue管理的函数，最好写成普通函数，这样this的指向才是vm或者组件实例对象
+        所有不被vue所管理的函数（定时器的回调函数，ajax的回调函数等），最好写在箭头函数
+        这样this的指向才是vm或者组件实例对象
+
+
+      面试提 ：react ,vue 中的key有什么作用？（key的内部原理）
+        1，虚拟DOM中key的作用
+          key是虚拟DOM对象的标识，当状态中的数据发生变化时，Vue会根据【新数据】生成【新的虚拟DOM】，
+          随后Vue进行【新虚拟DOM】与【旧虚拟DOM】的差异比较，比较规则如下
+
+        2，对比规则
+          旧虚拟DOM中找到了新虚拟DOM相同的key
+            若虚拟DOM中内容改变，直接使用之前的真实DOM
+            若虚拟DOM中内容比变了，则生成新的真实DOM，随后替换掉页面中之前的真实DOM
+          旧虚拟DOM中未找到与虚拟DOM相同的key
+            创建新的真实DOM，随后渲染到页面
+
+        3，用index作为key可能引发的问题
+          若数据进行，逆序添加，逆序删除等破坏顺序的操作
+            会产生没有必要的真实DOM更新==》界面效果美问题，但效率低
+          如果结构中还包含输入类的DOM
+            会产生错误DOM更新==》界面问题
+        4，开发者中如何选择key?
+          最好使用每条数据的唯一标识未key,比如id 手机号码，身份证编号，等
+          如果不存在数据的逆序添加删除等破坏顺序操作，仅用户展示，
+          使用index作为key是没有问题的
+
+
+      过滤器：
+        定义：对显示的数据进行特定格式化后再显示（适用于一下简单逻辑的处理）。
+        语法：
+          注册过滤器：Vue.filter(name,callback)或者new Vue(filters:{})
+          使用过滤器：{{xxx |  过滤器名}} 或 v-bin:属性="xxx | 过滤器名"
+        备注：
+          过滤器也可以接收额外参数，多一个过滤器也可以串联
+          并没有改变原本的数据，是产生新的对应的数据
+
+      我们学习过的指令
+        v-bind :单向绑定解析表达式，可以简写:xxx
+        v-model :双向数据绑定
+        v-for : 遍历数组、对象、字符串
+        v-on :绑定事件监听器，可简单写为@
+        v-if :条件渲染（动态控制节点是否存在）
+        v-else:条件渲染（动态控制节点是否存在）
+        v-show:条件渲染（动态控制节点是否显示）
+        v-text指令:
+        v-html :
+          作用：向指定节点中渲染含有html结构的内容
+          与插值语法的区别：
+            v-html会替换节点所有的内容：{{xx}}则不会
+            v-html可以识别html结构
+          严重注意：v-html有安全性问题
+            在网站上动态渲染任何html是非常危险的，容易导致xss攻击
+            一定要在可信的内容上使用v-html，永不要再用户提交的内容上
+
+        v-cloak指令：（没有值的）
+          本质是一个特殊属性，Vue实例创建完毕并接管容器后，会删掉v-cloak属性
+          使用css配合v-cloak可以解决网速慢时页面展示出{{xxx}}的问题
+
+        v-once指令
+          v-once所在节点在初次动态渲染后，就被视为静态内容
+          以后数据的改变不会引起v-once所在结构的更新，可以用于优化性能
+
+        v-pre指令：
+          跳过其所在节点的编译过程
+          可以利用它跳过，没有使用指令的语法，没有使用指令语法的节点，会加快编译
+
+        自定义指令总结：
+          定义语法：
+            new Vue({                                new Vue({
+              directives:(指令名：配置对象)或           directives:(指令名：回调函数)
+            })                                        })
+          全局指令：
+            Vue.directive(指令名，配置对象) 或   Vue.directives(指令名，回调函数)
+
+
+        配置对象中常用得3个回调：
+            bind:指令与元素成功绑定时调用
+            inserted：指令所在元素被插入页面时调用
+            update: 指令所以在模板结构被重新解析时调用
+        备注
+            指令定义时不加v-,使用时要家v-
+            指令名如果时多个单词，要使用kebab-case命名方式，不要用camelCase命名
+
+
+
+
+        生命周期
+            又名：生命周期回调函数，生命周期钩子
+            是什么，Vue在关键时刻帮我们调用的一些特殊名称的函数
+            生命周期函数的名字不可改变，但函数的具体内容是程序员根据需求编写的
+            生命周期函数中的this指向是VM或组件实例对象
+
+            Vue完成模板得解析并把初始得真实dom元素放入页面后（挂载完毕），调用mounted
+
+
+        常用的生命周期钩子：
+            mounted: 发送ajax请求，启动定时器，绑定自定义事件，订阅消息等【初始化操作】
+            beforeDestroy:清除定时器，解绑自定义事件，取消订阅消息等【收尾工作】
+        
+        关于销毁Vue实例
+            销毁后借助Vue开发者工具看不到任何信息
+            销毁后自定义事件会失效，但原生DOM事件依然有效
+            一般不会在beforeDestry操作数据，因为即便操作数据，也不会再触发更新流程了
+
+
+    -->
+
+  <div id="formdemo">
+
+     <form  @submit.prevent="demo">
+      <label for="account">账号</label>
+      <input type="text" id="account" v-model.trim="userInfo.account"><br/><br/>
+      <label for="password">密码</label>
+      <input type="password" id="password"  v-model="userInfo.password"><br/><br/>
+      <label for="age">年龄</label>
+      <input type="number" id="age"  v-model.number="userInfo.age"><br/><br/>
+      性别：
+      <label for="usersex1">男</label>
+      <input type="radio"   name="sex"  id="usersex1"  v-model="userInfo.sex" value="1">
+      <label for="usersex2">女</label>
+      <input type="radio"   name="sex"  id="usersex2"  v-model="userInfo.sex" value="2"><br/><br/>
+      
+      <input type="checkbox" id="cf"  v-model="userInfo.hobby"  value="cf">
+      <label for="cf">吃饭</label>
+     
+      <input type="checkbox" id="dy"  v-model="userInfo.hobby"  value="dy">
+      <label for="dy">打游戏</label>
+     
+      <input type="checkbox" id="ps"  v-model="userInfo.hobby"  value="ps">
+      <label for="ps">爬山</label><br/><br/>
+      <select v-model="userInfo.city">
+        <option value=""     >请选择校区</option>
+        <option value="sh"   >上海</option>
+        <option value="sz"   >深圳</option>
+        <option value="jy"   >揭阳</option>
+
+      </select><br/><br/>
+      其他信息：
+      <textarea v-model="userInfo.qta" title="qta"></textarea><br/><br/>
+      <input v-model="userInfo.agrre" type="checkbox">阅读并接受<a href="www.baidu.com">《用户协议》</a><br/><br/>
+      <button >提交</button>
+    </form><br/><br/>
+    <p>{{fmtTime}}</p>
+    <p>{{time  | timformter}}</p>
+  </div>
+
+  <div id="rot" style="margin: 50px;">
+    <!--绑定class样式--字符串写法，适用于：样式的类名不确定，需要动态指定-->
+    <div class="basic" :class="a" @click="chageMood" >
+      {{name}}
+    </div>
+    <!--绑定class样式--数组写法，适用于：要绑定的样式个数不确定，名字也不确定-->
+ <!--    <div class="basic" :class="arrys"   @click="chageMoodarrys" >
+      {{name}}
+    </div> -->
+    <!--绑定class样式--对象写法，适用于：要绑定的样式个数不确定，名字也不确定，但要动态做决定-->
+   <!--  <div class="basic" :class="classObj" @click="chageMoodarrys" >
+      {{name}}
+    </div> -->
+  </div>
+
+    <div id="demo_tq" v-cloak >
+      <h2>
+        今天天气很{{info}}
+      </h2>
+
+      <button   @click="changeWeather">切换天气</button>
+      <hr/>
+      <h2>a的值{{numbera.a}}</h2>
+      <button @click="numbera.a++">点击改变a</button>
+    </div>
+
+    <div id="demo">
+        姓<input type="text" v-model="firstName">
+        名<input type="text" v-model="lastName">
+        姓名<span>{{fullName}}</span>
+    </div>
+
+    <div id="root" >  
+       <h1 >你好  {{message}}</h1>
+       <h1>指令语法</h1>
+       <a v-bind:href="url"  >nihao</a>
+    </div>
+ 
+    <div id="rootinput">
+     单向数据绑定： <input type="text" v-bind:value="name"><br/>
+     双向数据绑定： <input type="text" v-model="name">
+    </div>
+
+
+    <div id="rootclick">
+
+      <h1>你好我是{{name}}</h1>
+      <button @click="showInfo">点击我提示信息</button>
+      <button @click="showInfo2(2,$event)">点击我提示信息2</button>
+      <!--阻止默认事件（常用）-->
+      <a  href="http://localhost:8080/static/js/vue.js" @click.prevent="showInfopre">点击我</a>
+      <!--阻止事件冒泡-->
+      <button @click.stop="showInfopre">点击我</button>
+       <!--事件只除非一次-->
+       <button @click.once="showInfopre">点击我</button>
+
+      
+    </div>
+
+    <div id="rootkey">
+      <input type="text" placeholder="按下回车提示输入"  @keyup.enter="showInfokeyUp">
+    </div>
+ 
+
+    <div id="fordemo">   
+      <h2>对象显示</h2><button @click="addsex">添加性别</button>
+      <ul>
+        <li v-for="value in persons":key="index">
+          {{ value }}
+        </li>
+      </ul>
+      <h2>对数组显示</h2>
+      <ul>
+        <li v-for="(item, index) in arr" :key="index">
+          {{ item }} -{{index}}
+        </li>
+      </ul>
+      <h2>对象数组显示</h2>
+      <ul>
+        <li v-for="(item, index) in items" :key="index">
+          {{ item.title }} -{{index}} 
+         <input type="text">
+        </li>
+      </ul>
+      <button  @click.once="adddemo">添加一个</button>
+    </div>
+
+
+    <div  id="searchdemo">
+      搜索：  <input type="text"  v-model="keyWork" >
+      <button @click="sortType=2" >id升序</button>
+      <button @click="sortType=1" >id降序</button>
+      <button @click="sortType=0" >原顺序</button>
+      <button @click="addsex" >添加一个</button>
+   
+      <ul>
+         
+        <li v-for="(item, index) in filPerons" :key="item.id">
+          {{item.id}} ==={{item.title}} 
+        </li>
+      </ul>
+    </div>
+
+    <div id="zdy">
+      <h1>自定义指令</h1>
+      <span   v-big="n"></span><br/><br/>
+      <input type="text" v-fbing:value="n">
+      <button @click="n++;">点击</button>
+    </div>
+
+
+    <div id="tmd">
+      <h2 :style="{opacity}">欢迎光临。。</h2>
+    </div>
+
+
+   <script type="text/javascript">
+
+
+      new Vue({
+        el:"#tmd",
+        data:{
+          opacity:1
+        },
+        beforeCreate() {
+          console.log('beforeCreate')
+          debugger;
+        },
+        methods:{
+         
+        },
+        //Vue完成模板的解析并把真实的DOM元素放入页面后（挂载完毕） 调用mounted
+        mounted() {
+            setInterval(()=>{
+              this.opacity-=0.01
+              if(this.opacity<=0) this.opacity=1
+            },16)
+        
+        },
+      })
+
+//帆软
+      new Vue({
+        el:"#zdy",
+        data:{
+          n:1
+        },
+        directives:{
+          //big函数何时会被调用？1，指令与元素成功绑定时（以上来就被调用），2指令所在的模板被重新解析时
+          big(e ,b){
+            console.log(e.innerText,b.value )
+            e.innerText= b.value*10
+          },
+          fbing:{
+          /*  alert(b.value )
+           e.value=b.value
+           e.focus() */
+           bind(e ,b){
+            console.log('bind'+b.value )
+            e.value= b.value
+           },
+           inserted(e ,b){
+            console.log('inserted' +b.value )
+            e.focus()
+           },
+           updated(e ,b) {
+            console.log('updated'+b.value )
+            e.value= b.value
+           },
+          }
+        }
+      })  
+
+  
+    const formdemo= new Vue({
+      el:"#formdemo",
+      data:{
+        time:1670489314533,
+        userInfo:{
+          account : '',
+        password: '',
+        age:0,
+        sex: '1',
+        hobby:[],
+        city: 'jy',
+        qta:'',
+        agrre:false
+        }
+      },
+      methods:{
+        demo(){
+
+            alert(JSON.stringify(this.userInfo))
+
+        }
+
+      }
+      ,
+      filters:{
+        timformter(value){
+          return  dayjs(value).format('{YYYY} MM-DDTHH:mm:ss SSS [Z] A')
+        }
+      },
+      computed:{
+        fmtTime(){
+          return dayjs(this.time).format('{YYYY} MM-DDTHH:mm:ss SSS [Z] A') // 展示
+        }
+      }
+     })
+
+     new Vue({
+      el:'#searchdemo',
+      data:{
+        
+        keyWork:'',
+        sortType:'0',
+        items: [
+        {
+          id:'001',
+          title: 'How to do lists in Vue===============',
+          author: 'Jane Doe',
+          publishedAt: '2016-04-10'
+        },
+          {
+            id:'002',
+              title: 'How to do lists in Vue1111111111111111111',
+              author: 'Jane Doe',
+              publishedAt: '2016-04-10'
+        } ,
+           {
+            id:'003',
+             title: 'How to do lists in Vue2222222222222222222',
+             author: 'Jane Doe',
+             publishedAt: '2016-04-10'
+         }
+         ],
+         //filPerons:[]
+      } ,
+      computed:{
+
+        filPerons(){
+          const data_all = this.items.filter((p)=>{
+            return p.title.indexOf(this.keyWork)!==-1
+          })
+
+          if(this.sortType){
+            data_all.sort((a,b)=>{
+              return  this.sortType ===1 ? a.id-b.id:b.id-a.id
+            })
+          }
+
+          return  data_all;
+        }
+        
+
+      },
+      methods:{
+        addsex(){
+          
+          this.filPerons.forEach(element => {
+            Vue.set(element,'sex','nan')
+          });
+        }
+      }
+      /* watch:{
+        keyWork:{
+          immediate:true,
+          handler(a){
+            
+            this.filPerons=this.items.filter((p)=>{
+            return p.title.indexOf(a)!==-1
+          })
+        }
+        }
+      } */
+    })
+      
+
+   
+    const fordemo =  new Vue({
+      el:'#fordemo',
+      data:{
+        persons:{
+          id:'001',
+          title: 'How to do lists in Vue',
+          author: 'Jane Doe',
+          publishedAt: '2016-04-10'
+        },
+        arr:[ "Google", "Runoob", "Taobao" ],
+        items: [
+        {
+          id:'001',
+          title: 'How to do lists in Vue===============',
+          author: 'Jane Doe',
+          publishedAt: '2016-04-10'
+        },
+          {
+            id:'002',
+              title: 'How to do lists in Vue1111111111111111111',
+              author: 'Jane Doe',
+              publishedAt: '2016-04-10'
+        } ,
+           {
+            id:'003',
+             title: 'How to do lists in Vue2222222222222222222',
+             author: 'Jane Doe',
+             publishedAt: '2016-04-10'
+         }
+         ]
+      },
+      methods:{
+     
+        addsex(){
+         
+          Vue.set(this.persons,'sex','男')
+        },
+        
+        adddemo(){
+         const p= {
+            id:'004',
+             title: 'How to do lists in d4444444',
+             author: 'Jane Doe',
+             publishedAt: '2016-04-10'
+         }
+
+         this.items.unshift(p)
+         
+        }
+      }
+    })
+      
+
+    new Vue({
+      el:'#rot',
+      data:{
+        name:'nihao',
+        a:'hongs',
+        arrys:['at1','at2'],
+        classObj:{
+          at1:false,
+          at2:false
+        }
+      },
+      methods:{
+        chageMood(){
+          const arr = ['hongs','lus','huangs']
+          this.a=arr[Math.floor(Math.random()*3)]
+          this.arrys=['at1','at2']
+
+        }
+      }
+    })
+
+
+
+      new Vue({
+       el:'#demo_tq',
+       data:{
+         isHot:true,
+         numbera:{
+           a:1,
+           x:2
+         }
+
+       },
+       methods:{
+        changeWeather(){
+
+          this.isHot=!this.isHot
+
+        }
+       },
+       computed:{
+        info(){
+          return this.isHot?'炎热':'凉爽'
+        }
+        
+        
+       },
+       watch:{
+        isHot:{
+        
+          handler(newValue,oldValue){//isHost发生改变就调用
+            console.log('被改变了,新的'+newValue+'旧的'+oldValue)
+          }
+        } ,
+        //监视多个结构中某个属性的变化
+        numbera:{
+          //深度监视
+          deep:true,
+          handler(){
+           alert('d')
+            
+          }
+        }
+       }
+     })
+   
+      
+
+    const dd =  new Vue({
+      el:'#demo',
+      data:{
+        firstName:'zhang',
+        lastName:'sang'
+      },
+      //计算属性
+      computed: {
+        //get 什么时候被掉用？1，初次读取fullName时-2，所依赖发生变化时调用
+        fullName:{
+          get(){
+            return this.firstName  + this.lastName
+          },
+          set(value){
+            const  arr = value.split('-')
+            this.firstName=arr[0]
+            this.lastName=arr[1]
+          }
+        }
+      } 
+    })
+
+
+  new Vue({
+      el:'#rootkey',
+      methods:{
+        showInfokeyUp(e){
+         
+          alert('回车')
+        }
+      }
+    })
+
+     
+      new Vue({
+        data() {
+          return {
+            message:'hello chenshuhong',
+            url: 'https://v2.cn.vuejs.org/v2/guide/installation.html'
+          }
+        },
+       el:'#root'
+      })
+
+
+       new Vue({
+        el:'#rootinput',
+        data:{
+          name:'单项按钮'
+        }
+      })
+
+      
+
+
+
+
+
+ 
+      let number =18;
+
+      let person ={
+        name:'zhangsa',
+        sex:'nan'
+      }
+
+      //给对象动态赋值
+      Object.defineProperty(person,'age',{
+       /*  value:17,
+        enumerable:true,//控制属性是否枚举，默认为false
+        writable:true,//控制属性是否可以被修改，默认为false
+        configurable:true//控制属性值是否能被删除，默认为false */
+
+        //当人读取person的age属性时，get函数就会被调用，且返回值就是age的值
+        get(){
+          return number
+        },
+
+       //当有人修改person的age属性时，set函数就会被调用，且返回值就是age的值
+       set(value){
+         console.log('有人修改的age属性'+value)
+         number= value 
+       }
+      })
+     
+     // console.log(person)
+
+
+     //数据代理定义
+     let obj1={x:100}
+     let obj2={y:200}
+
+     Object.defineProperty(obj2,'x',{
+       get(){
+        return  obj1.x
+       },
+
+       set(value){
+          obj1.x=value
+       }
+     })
+     
+     Object.defineProperty(obj1,'y',{
+       get(){
+        return  obj2.y
+       },
+
+       set(value){
+          obj2.y=value
+       }
+     })
+
+
+     new Vue({
+       el:'#rootclick',
+       data:{
+          name:'事件'
+       }
+       ,
+       methods: {
+        showInfo(event){
+         // console.log(this)//此处的this是vm
+         alert('点击')
+        },
+        showInfo2(number,event){
+         console.log(event)
+         alert('点击'+number)
+         
+        },
+        showInfopre(event){
+          alert('nihao')
+}
+       }
+     })
+
+     
+   </script>
+   
+  </body>
+</html>

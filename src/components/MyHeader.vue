@@ -8,13 +8,13 @@
 import {nanoid} from 'nanoid'
 export default {
     name:'MyHeader',
-    props:['addTodo'],
+    props:[ ],
     methods:{
         add(event){
             if(!event.target.value.trim())return 
             //将用户的输入包装成一个todo对象
              const todoObj={id: nanoid(),title:event.target.value,done:false}
-             this.addTodo(todoObj)
+             this.$emit('addTodo',todoObj)
              event.target.value=''
         }
     }

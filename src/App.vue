@@ -1,40 +1,87 @@
 <template>
+
    <div class="todo-container">
+     <Count></Count>
+     <Person></Person>
+     <Category title="美食">
+       <img  slot="n1" src="https://lmg.jj20.com/up/allimg/1114/040221103339/210402103339-8-1200.jpg">
+       <img  slot="n2" src="https://lmg.jj20.com/up/allimg/1114/040221103339/210402103339-8-1200.jpg">
+        <ul>
+           <li v-for="(food , index) in  foods" :key="index">{{food}}</li>
+        </ul>
+    </Category>
+     <button @click="gettestdata()">请求数据</button>
     <div class="todo-wrap">
-     <MyHeader :addTodo="addTodo"/>
+     <MyHeader @addTodo="addTodo"/>
      <MyList :todos="todos"  :checkTodo="checkTodo"  :deleteObj="deleteObj"/>
      <MyFooter  :todos="todos" :updateObj="updateObj"  :cleanAll="cleanAll"/>
+     <!--有两种实现方法，第一种直接绑定灵活性不高，第二种用mounted 灵活性高一点-->
+     <!--<studen v-on:atguigu="getStudenName"/>-->
+     <!--<studen ref="student"/>-->
+      <Test/>
     </div>
   </div>
+ 
 </template>
 
 <script>
  
+ 
+
 //引入主键
  
 import MyFooter from './components/MyFooter.vue'
 import MyHeader from './components/MyHeader.vue'
 import MyList from './components/MyList.vue'
+import Studen from './components/Studen.vue'
+import Test from './components/Test.vue'
+import Category from './components/Category.vue'
+import Count from  './components/Count.vue'
+import Person from  './components/Person.vue'
+import axios from 'axios'
 
     export default {
         name:'App',
         components:{
          MyHeader ,
          MyList,
-         MyFooter
+         MyFooter,
+                Studen,
+                Test,
+                Category,
+                Count,
+                Person
         }
         ,
     data(){
         return {
           todos: JSON.parse(localStorage.getItem('todos'))  ||  []  ,
-         
+          foods:['火锅','烧烤','小龙虾','牛排'],
+          games:['红色警戒','穿越火线','劲舞团','超级玛丽'],
+          films:['《教父》','《拆弹专家》','《你好》','《尚硅谷》']
+           
         }
     },
         
         methods:{
+
+          gettestdata(){
+            axios.get('http://192.168.1.4:8000/m2micro-auth/sys/login?password=123456&username=admin').then(
+              response=>{
+                console.log('请求成功',response.data)
+              },
+              error=>{
+                console.log('请求成功',error.message)
+              }
+            )
+          }
+          ,
+          getStudenName(name){
+            console.log('获取学生name',name)
+          }
+          ,
           //添加
           addTodo(x){
-            console.log('我是App组件，我收到了数据',x)
             this.todos.unshift(x)
             localStorage.setItem('todos',JSON.stringify(this.todos))
             
@@ -67,12 +114,18 @@ import MyList from './components/MyList.vue'
             })
            localStorage.setItem('todos',JSON.stringify(this.todos))
           }
+        },
+        mounted() {
+         // console.log('app',this)
+          this.$refs.student.$on('atguigu',this.getStudenName)
         }
     }
      
 </script>
 
 <style>
+
+
 /*base*/
 body {
   background: #fff;

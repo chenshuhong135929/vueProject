@@ -1,8 +1,8 @@
 <template>
     <ul class="todo-main">
-
+      <transition-group appear name="Item">
         <MyItem v-for="todoObj in todos" :key="todoObj.id" :todo="todoObj"  :checkTodo="checkTodo" :deleteObj="deleteObj"/>
-        
+      </transition-group>
       </ul>
 </template>
 
@@ -21,6 +21,21 @@ export default {
 
 <style scoped>
 
+    .Item-enter-active{
+        animation: atguigu 1s;
+    }
+    .Item-leave-active{
+        animation: atguigu  1s reverse;
+    }
+
+   @keyframes atguigu {
+       from{
+           transform: translateX(-100%);
+       }
+       to{
+           transform: translateX(0px);
+       }
+   }
 /*main*/
 .todo-main {
   margin-left: 0px;

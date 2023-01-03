@@ -1,8 +1,9 @@
 <template>
          <div class="demo" >
             <h2>{{msg}}</h2>
-            <h2 @click="showDOM">学生姓名：{{name}}</h2>
+            <h2 @click="showDOM">学生姓名：{{sname}}</h2>
             <h2>学生年龄：{{age}}</h2>
+            <button @click="sendStudentlName">把学生名字给app</button>
             
         </div>
 </template>
@@ -11,10 +12,18 @@
 import {hunhe} from  '../mixin'
 export default {
     name:"Studen",
+    
     data(){
     return {
-            msg:'我是一个m2miro'
+            msg:'我是一个m2miro',
+            sname: "xiaoming"
          }
+    },
+    methods:{
+      sendStudentlName(){
+        //触发Student组件实例身上的atguigu事件
+        this.$emit('atguigu',this.sname)
+      }
     }
     ,
     // 简单接收

@@ -29,6 +29,53 @@ npm test
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
+
+## vue安装bootstrap
+package.json 文件添加bootstrap和jquery依赖
+
+ "dependencies": {
+    "axios": "^1.2.1",
+    "jquery": "^3.3.1",
+    "bootstrap": "^3.4.0",
+    "nanoid": "^4.0.0",
+    "pubsub-js": "^1.9.4",
+    "vue": "^2.5.2",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.6.2"
+  },
+
+ 执行安装
+ npm install
+
+build/webpack.base.conf.js 文件添加插件配置
+
+
+文件开头处
+const webpack = require("webpack");
+
+
+module.exports = {
+  plugins: [
+
+    new webpack.ProvidePlugin({
+
+      $: "jquery",
+      jQuery: "jquery",
+      "windows.jQuery": "jquery"
+
+    })
+
+],
+
+
+main.js中导入jquery和bootstrap
+
+import 'jquery/dist/jquery.min.js'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.min'
+
+
+
 ## ref属性
 1，被用来给元素或子组件注册引用信息（id的替代者）
 2，应用在html标签上获取的是真实DOM元素，应用在组件标签上是组件实例对象（vc)
@@ -169,6 +216,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 
 ## 消息订阅与发布（pubsub)
+安装  npm  i pubsub-js
 1，一种组件间通信的方式，适用于任意组件通信
 2，使用步骤：
     1，安装pubsub:  npm  i pubsub-js
@@ -342,6 +390,7 @@ changeOrigin 默认值为true
 
 
 ## Vuex
+安装 npm i vuex@3
 1，概念
     在vue中实现集中式状态（数据）管理的一个Vue插件，对vue应用中多个组件的共享状态进行集中式的管理（读、写），也是一种组件
     通信的方式，且适用于任何组件间的通信
@@ -515,5 +564,298 @@ new Vue({
     this.$store.commit('personAbout/ADD',person)
     //方式二，借助mapMutations
     ...mapMutations('countAbout',{increment:'JIA',decrement:'JIAN'}),
-    
 
+
+## 路由
+1，理解：一个理由（route)就是一组映射关系（key-value) ,多个路由需要路由器（router)进行管理
+2，前端路由：key是路径，value是组件
+
+### 基本使用
+1，安装vue-router,命令：npm i vue-router
+2，应用插件：Vue.use(VueRouter)
+3，编写route配置项
+
+//引入VueRouter
+import Router from 'vue-router'
+//引入理由组件
+import About from '@/components/About'
+import Home from '@/components/Home'
+
+Vue.use(Router)
+ //插件router实例对象，去管理一组一组的理由规则
+export default new Router({
+  routes: [
+    {
+      path: '/about',
+      name: 'about',
+      component: About
+    }
+    , {
+      path: '/home',
+      name: 'home',
+      component: Home
+    }
+  ]
+})
+
+4，实现切换（active-class 可配置高亮样式）
+<router-link active-class="active"  to="/about" >About</router-link>
+5，指定展示位置
+<router-view></router-link>
+
+### 几个注意点
+1，理由组件通常存放再pages文件夹，一般组件通常存放再components文件夹
+2，通过切换，’隐藏‘了的路由组件，默认是被销毁掉的，需要的时候再去挂载
+3，每个组件都有自己的$router属性，里面存储着自己的路由信息
+4，整个应用只有一个router,可以通过组件的$router属性获取到
+
+### 多级路由（嵌套路由）
+1，配置路由规则，使用children 配置项
+ {
+      path: '/home',
+      name: 'home',
+      component: Home,
+      children:[
+        {
+          path: 'home-message',
+          name: 'HomeMessage',
+          component: HomeMessage
+        }
+        , {
+          path: 'home-news',
+          name: 'HomeNews',
+          component: HomeNews
+        }
+      ]
+    }
+    
+    2，跳转（要写完整路径）
+    <router-link  class="list-group-item" active-class="active" to="/home/home-news">News</router-link>
+### 命名路由
+1，作用： 可以简化路由的跳转
+2，如何使用
+    1，给路由器命名：
+
+    children:[
+            {
+              path: 'detail',
+              name: 'Detail',//命名
+              component: Detail,
+            }
+           
+          ]
+2，简化跳转
+              <!--跳转路由携带query参数：to的字符串写法（简化前）-->
+              <router-link  :to="`/home/home-message/detail?id=${m.id}&title=${m.title}`">{{m.title}}</router-link>&nbsp;&nbsp;
+              <!--跳转路由携带query参数：to的对象写法写法（简化后）-->
+              <router-link  :to="{
+                  //path:'/home/home-message/detail',
+                  name:'Detail',
+                  query:{
+                      id:m.id,
+                      title:m.title
+                  }
+              }">{{m.title}}</router-link>&nbsp;&nbsp;
+
+
+
+### 路由的params参数
+1，配置路由，声明接收params参数
+        
+        {
+              path: 'detail/:id/:title',
+              name: 'Detail',
+              component: Detail,
+        } 
+2，传递参数
+<router-link  :to="{
+                  //path:'/home/home-message/detail',
+                  name:'Detail',
+                  params:{
+                      id:m.id,
+                      title:m.title
+                  }
+              }">携带params参数{{m.title}}</router-link> 
+
+特别注意：路由现代params 参数时，若使用to的对象写法，则不能使用path配置项，必须使用name配置
+
+3，接收参数 
+
+ <li>消息编码:{{this.$route.params.id}}</li>
+ <li>消息标题:{{this.$route.params.title}}</li>
+
+ ### 路由的props配置
+
+          children:[
+            {
+              path: 'detail',
+              name: 'Detail',
+              component: Detail,
+            }
+         /*    {
+              path: 'detail/:id/:title',
+              name: 'Detail',
+              component: Detail,
+              //props 的第一种写法，值为对象，该对象中的所有key-value都会以props形式传给Detail组件
+              props:{a;1,b:'hello'}
+              //props得第二种写法，值为boolean值，若boolean值为true,就会把路由组件收到得所有params参数，以props的形式传给Detail中
+              props：true
+              //props的第三种写法，值为函数
+              props($route){
+                return{
+                  id:$route.query.id,
+                  title:$route.query.title
+                }
+              }
+            } */
+           
+          ]
+
+### <router-link> 的replace属性
+1，作用：控制路由跳转时操作浏览器历史记录的模式
+2，浏览器的历史记录有两种写入方式：分别为push 和 replace ，push是追加历史记录，replace是替换当前记录，路由跳转时候默认为push
+3，如何开启replace模式 ：<router-link replace ......>news</router-link>
+
+### 编程式路由导航
+1，作用：不借助<router-link>实现路由跳转，让路由跳转更加灵活
+2，具体编码
+
+this.$router.push({
+            name:'Detail',
+           query:{
+                      id:m.id,
+                      title:m.title
+              }
+      })
+
+
+  this.$router.replace({
+           name:'Detail',
+           query:{
+                      id:m.id,
+                      title:m.title
+              }
+      })
+
+
+操作浏览地址（页面）
+  前进
+  this.$router.forward()
+  后退
+  this.$router.back()
+  跳转
+  this.$router.go(-2)
+
+
+
+### 缓存路由组件
+1，作用：让展示的路由组件保存挂载，不被销毁
+2，具体编码：
+
+include是输入主键名（componenets的name
+     <keep-alive include="HomeNews">
+          <router-view></router-view>
+     </keep-alive>
+
+可能有多个组件需要缓存数据可以使用:include
+ <keep-alive :include="['HomeNews','HomeMessage',]">
+          <router-view></router-view>
+ </keep-alive>
+
+### 两个新的生命周期钩子
+1，作用：路由组件所独有的两个钩子，用于捕获路由组件的激活状态
+2，具体名字
+    1，activated 路由组件被激活时触发
+    2，deactivated 路由组件失活时触发
+
+
+### 路由守卫
+1，作用：对路由进行权限控制
+2，分类：全局守卫，独享守卫，组件内守卫
+3，全局守卫
+
+index.js配置
+//全局前置路由守卫---初始化的时候被调用，每次路由切换之前被调用
+router.beforeEach((to,from,next)=>{
+
+  console.log('前缀路由守卫',to,from);
+  //if(to.path==='/home/home-message' || to.path === '/home/home-news'){
+    if(to.meta.isAuth){
+    if(localStorage.getItem('token')==='chenshuhong'){
+      next()
+    }else{
+      alert('数据不对，无权限查看')
+    }
+  }else{
+    next()
+  }
+
+})
+
+//全局后置路由守卫---初始化的时候被调用，每次路由切换之后被调用
+router.afterEach((to,from)=>{
+  console.log('后缀路由守卫',to,from);
+  document.title=to.meta.title || '操作系统'
+
+})
+
+4，独享守卫
+{
+          path: 'home-news',
+          name: 'HomeNews',
+          component: HomeNews,
+          meta:{ isAuth:true, title:'新闻',},
+        //独享路由守卫
+        /*   beforeEnter:(to,from,next)=>{
+            console.log('独享路由守卫',to,from);
+              if(to.meta.isAuth){
+              if(localStorage.getItem('token')==='chenshuhong'){
+                next()
+              }else{
+                alert('数据不对，无权限查看')
+              }
+            }else{
+              next()
+            }
+          } */
+        }
+      ]
+
+
+5，组件内守卫
+
+组件vue文件里面配置，是组件的生命周期
+
+//通过路由规则，进入该组件时被调用
+beforeRouteEnter (to, from, next) {
+     console.log('beforeRouteEnter路由守卫',to,from);
+              if(to.meta.isAuth){
+              if(localStorage.getItem('token')==='chenshuhong'){
+                next()
+              }else{
+                alert('数据不对，无权限查看')
+              }
+            }else{
+              next()
+            }
+},
+//通过路由规则，离开该组件时被调用
+beforeRouteLeave(to, from, next) {
+       console.log('beforeRouteLeave路由守卫',to,from);
+       next()
+},
+}
+
+
+### 路由器的两种工作模式
+1，对于一个url来说，什么是hash值？---#及其后面的内容就是hash值
+2，hash值不会包含在HTTP请求中，即：hash值不会带给服务器
+3，hash模式：
+    1，地址中永远带着#号，不美观
+    2，若以后降地址通过第三方手机app分享，若app校验严格，则地址会被标记为不合法
+    3，兼容性比较好
+4，history模式：
+    1，地址干净，美观
+    2，兼容性和hash模式相比略差
+    3，应用部署上线时需要后端人员支持，解决刷新页面服务端404问题
+    
